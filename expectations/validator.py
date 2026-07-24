@@ -1,43 +1,57 @@
-import great_expectations as gx
+import great_expectations as ge
 
 
 def validate_data(df):
     """
     Validate the dataframe using Great Expectations.
-    Raises an exception if validation fails.
+    Returns True if all expectations pass.
     """
 
-    gx_df = gx.from_pandas(df)
+    # Convert pandas DataFrame into a Great Expectations DataFrame
+    ge_df = ge.from_pandas(df)
 
-    # 1. Timestamp should never be null
-    gx_df.expect_column_values_to_not_be_null("timestamp")
+    results = []
 
-    # 2. Pressure must be greater than 0
-    gx_df.expect_column_values_to_be_between(
-        "Pressure_PSI",
-        min_value=0,
-        strict_min=True
+    # 1. Timestamp should not be null
+    results.append(
+        ge_df.expect_column_values_to_not_be_null("timestamp")
     )
 
-    # 3. Temperature must be below 100
-    gx_df.expect_column_values_to_be_between(
-        "Temperature_C",
-        max_value=100
+    # 2. Timestamp should be unique
+    results.append(
+        ge_df.expect_column_values_to_be_unique("timestamp")
     )
 
-    # 4. Flow Rate must be greater than 0
-    gx_df.expect_column_values_to_be_between(
-        "Flow_Rate_LPM",
-        min_value=0,
-        strict_min=True
+    # 3. Pressure must be greater than 0
+    results.append(
+        ge_df.expect_column_values_to_be_between(
+            "Pressure_PSI",
+            min_value=0,
+            strict_min=True
+        )
     )
 
-    # 5. Timestamp should be unique
-    gx_df.expect_column_values_to_be_unique("timestamp")
+    # 4. Temperature must be less than 100
+    results.append(
+        ge_df.expect_column_values_to_be_between(
+            "Temperature_C",
+            max_value=100
+        )
+    )
 
-    results = gx_df.validate()
+    # 5. Flow rate must be greater than 0
+    results.append(
+        ge_df.expect_column_values_to_be_between(
+            "Flow_Rate_LPM",
+            min_value=0,
+            strict_min=True
+        )
+    )
 
-    if not results["success"]:
-        raise ValueError("Data validation failed.")
+    # Check if every expectation succeeded
+    success = all(result["success"] for result in results)
+
+    if not success:
+        raise ValueError("Great Expectations validation failed.")
 
     return True

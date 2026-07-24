@@ -121,12 +121,16 @@ def main():
     logging.info("========== Pipeline Started ==========")
 
     try:
+        # Extract
         df = extract()
 
-        validate(df)
-
+        # Transform
         df = transform(df)
 
+        # Validate
+        validate(df)
+
+        # Load
         load(df)
 
         logging.info("========== Pipeline Completed Successfully ==========")
