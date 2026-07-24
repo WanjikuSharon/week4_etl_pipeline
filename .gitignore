@@ -1,0 +1,26 @@
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Conda
+conda-meta/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Database
+*.db
+
+# Jupyter
+.ipynb_checkpoints/
