@@ -1,7 +1,9 @@
 import os
 import logging
-from dotenv import load_dotenv
 import pandas as pd
+
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
 # Load environment variables
 load_dotenv()
@@ -74,8 +76,36 @@ def transform(df):
 
 
 def load(df):
-    """Load data into the SQLite database."""
-    pass
+    """
+    Load the transformed data into the SQLite database.
+    """
+
+    logging.info("Starting data loading...")
+
+    try:
+        # Create SQLite connection
+        engine = create_engine(f"sqlite:///{DATABASE_PATH}")
+
+        with engine.begin() as connection:
+
+            # Idempotency: Clear existing data before inserting
+            connection.execute(text(f"DELETE FROM {TABLE_NAME}"))
+
+            # Load fresh data
+            df.to_sql(
+                TABLE_NAME,
+                connection,
+                if_exists="append",
+                index=False
+            )
+
+        logging.info(f"Loaded {len(df)} rows into '{TABLE_NAME}' table.")
+
+        print(f"Loaded {len(df)} rows into database.")
+
+    except Exception as e:
+        logging.error(f"Loading failed: {e}")
+        raise
 
 
 def main():
