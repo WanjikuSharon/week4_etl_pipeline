@@ -45,8 +45,32 @@ def validate(df):
 
 
 def transform(df):
-    """Transform the data."""
-    pass
+    """
+    Transform the extracted data.
+    """
+    logging.info("Starting data transformation...")
+
+    initial_rows = len(df)
+
+    # Convert timestamp to datetime
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+    # Standardize text columns
+    df["Zone"] = df["Zone"].str.upper()
+    df["Shift"] = df["Shift"].str.upper()
+
+    # Remove duplicate rows
+    df = df.drop_duplicates()
+
+    final_rows = len(df)
+
+    logging.info(
+        f"Transformation completed. Rows before: {initial_rows}, Rows after: {final_rows}"
+    )
+
+    print("Transformation completed.")
+
+    return df
 
 
 def load(df):
