@@ -4,6 +4,7 @@ import pandas as pd
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+from expectations.validator import validate_data
 
 # Load environment variables
 load_dotenv()
@@ -42,8 +43,17 @@ def extract():
 
 
 def validate(df):
-    """Validate data quality."""
-    pass
+    """
+    Validate the data using Great Expectations.
+    """
+
+    logging.info("Starting data validation...")
+
+    validate_data(df)
+
+    logging.info("Data validation passed.")
+
+    print("Data validation passed.")
 
 
 def transform(df):
