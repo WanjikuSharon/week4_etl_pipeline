@@ -77,34 +77,33 @@ def transform(df):
 
 def load(df):
     """
-    Load the transformed data into the SQLite database.
+    Load transformed data into SQLite.
+    Implements idempotency by replacing the table.
     """
 
     logging.info("Starting data loading...")
 
     try:
-        # Create SQLite connection
+
         engine = create_engine(f"sqlite:///{DATABASE_PATH}")
 
-        with engine.begin() as connection:
+        df.to_sql(
+            TABLE_NAME,
+            engine,
+            if_exists="replace",
+            index=False
+        )
 
-            # Idempotency: Clear existing data before inserting
-            connection.execute(text(f"DELETE FROM {TABLE_NAME}"))
-
-            # Load fresh data
-            df.to_sql(
-                TABLE_NAME,
-                connection,
-                if_exists="append",
-                index=False
-            )
-
-        logging.info(f"Loaded {len(df)} rows into '{TABLE_NAME}' table.")
+        logging.info(
+            f"Successfully loaded {len(df)} rows into '{TABLE_NAME}'."
+        )
 
         print(f"Loaded {len(df)} rows into database.")
 
     except Exception as e:
+
         logging.error(f"Loading failed: {e}")
+
         raise
 
 
