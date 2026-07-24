@@ -1,6 +1,7 @@
 import os
 import logging
 from dotenv import load_dotenv
+import pandas as pd
 
 # Load environment variables
 load_dotenv()
@@ -19,8 +20,23 @@ logging.basicConfig(
 
 
 def extract():
-    """Extract data from the CSV file."""
-    pass
+    """
+    Extract data from the CSV file.
+    """
+    logging.info("Starting data extraction...")
+
+    try:
+        df = pd.read_csv(CSV_PATH)
+
+        logging.info(f"Successfully extracted {len(df)} rows from {CSV_PATH}")
+
+        print(f"Extracted {len(df)} rows.")
+
+        return df
+
+    except Exception as e:
+        logging.error(f"Extraction failed: {e}")
+        raise
 
 
 def validate(df):
